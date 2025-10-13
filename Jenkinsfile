@@ -12,7 +12,7 @@ pipeline {
                     sh '''
                         echo "🔍 Validating JIRA credentials..."
                         curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
-                          -X GET "$JIRA_URL/rest/api/3/project/10003" \
+                          -X GET "$JIRA_URL/rest/api/3/project-template/live-template" \
                           -H "Content-Type: application/json" \
                     '''
                 }
