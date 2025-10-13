@@ -126,10 +126,6 @@ def updateJiraComment(String message) {
         ]
       }
     ]
-  },
-  "visibility": {
-    "type": "role",
-    "value": "Administrators"
   }
 }
 EOF
