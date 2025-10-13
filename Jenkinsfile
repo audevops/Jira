@@ -105,15 +105,40 @@ def updateJiraComment(String message) {
         sh(
             script: """
                 #!/bin/bash
-                echo "🧩 Posting comment to Jira ticket ${env.JIRA_TICKET}..."
+                set -e
+
+                echo "🧩 Updating comment on Jira issue ${env.JIRA_TICKET}..."
+
+                # Construct the ADF-compliant JSON payload
                 COMMENT_PAYLOAD=\$(cat <<EOF
 {
-  "body": "${message.replaceAll('"', '\\"')}"
+  "body": {
+    "type": "doc",
+    "version": 1,
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "${message.replaceAll('"', '\\"')}"
+          }
+        ]
+      }
+    ]
+  },
+  "visibility": {
+    "type": "role",
+    "value": "Administrators"
+  }
 }
 EOF
 )
+
+                # Make the API call
                 curl -s -u "$JIRA_USER:$JIRA_TOKEN" \\
-                  -X POST "${env.JIRA_URL}/rest/api/3/issue/${env.JIRA_TICKET}/comment" \\
+                  -X PUT "${env.JIRA_URL}/rest/api/3/issue/${env.JIRA_TICKET}/comment/1" \\
+                  -H "Accept: application/json" \\
                   -H "Content-Type: application/json" \\
                   -d "\$COMMENT_PAYLOAD" \\
                   -w "\\nHTTP Status: %{http_code}\\n"
