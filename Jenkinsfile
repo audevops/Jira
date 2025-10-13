@@ -99,7 +99,7 @@ pipeline {
 
 //
 // ---- Shared Jira Update Function ----
-def updateJiraComment(String message, String commentId = "1001") {
+def updateJiraComment(String message, String commentId = "10000") {
     withCredentials([usernamePassword(credentialsId: 'jira_secret', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_TOKEN')]) {
         def response = sh(
             script: """
