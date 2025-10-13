@@ -99,17 +99,19 @@ pipeline {
 
 //
 // ---- Shared Jira Update Function ----
-//
-def updateJiraComment(String message) {
+def updateJiraComment(String message, String commentId = "1001") {
     withCredentials([usernamePassword(credentialsId: 'jira_secret', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_TOKEN')]) {
-        sh(
+        def response = sh(
             script: """
                 #!/bin/bash
                 set -e
 
                 echo "🧩 Updating comment on Jira issue ${env.JIRA_TICKET}..."
 
-                # Construct the ADF-compliant JSON payload
+                # Escape double quotes in message
+                ESCAPED_MESSAGE=\$(echo "${message}" | sed 's/"/\\\\\\"/g')
+
+                # Construct the JSON payload
                 COMMENT_PAYLOAD=\$(cat <<EOF
 {
   "body": {
@@ -121,7 +123,7 @@ def updateJiraComment(String message) {
         "content": [
           {
             "type": "text",
-            "text": "${message.replaceAll('"', '\\"')}"
+            "text": "\$ESCAPED_MESSAGE"
           }
         ]
       }
@@ -133,14 +135,15 @@ EOF
 
                 # Make the API call
                 curl -s -u "$JIRA_USER:$JIRA_TOKEN" \\
-                  -X PUT "${env.JIRA_URL}/rest/api/3/issue/${env.JIRA_TICKET}/comment/10000" \\
+                  -X PUT "${env.JIRA_URL}/rest/api/3/issue/${env.JIRA_TICKET}/comment/${commentId}" \\
                   -H "Accept: application/json" \\
                   -H "Content-Type: application/json" \\
                   -d "\$COMMENT_PAYLOAD" \\
                   -w "\\nHTTP Status: %{http_code}\\n"
             """,
-            returnStatus: true
-        )
+            returnStdout: true
+        ).trim()
+        echo "Response from Jira:\n${response}"
     }
 }
 
