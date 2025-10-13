@@ -21,7 +21,7 @@ pipeline {
                         echo "🔍 Validating Jira credentials..."
                         curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
                           -X GET "$JIRA_URL/rest/api/3/myself" \
-                          -H "Accept: application/json" | jq '.displayName'
+                          -H "Accept: application/json" 
                     '''
                 }
             }
