@@ -102,19 +102,24 @@ pipeline {
 //
 def updateJiraComment(String message) {
     withCredentials([usernamePassword(credentialsId: 'jira_secret', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_TOKEN')]) {
-        sh """
-            echo "🧩 Posting comment to Jira ticket $JIRA_TICKET ..."
-            COMMENT_PAYLOAD=$(cat <<EOF
+        sh(
+            script: """
+                #!/bin/bash
+                echo "🧩 Posting comment to Jira ticket ${env.JIRA_TICKET}..."
+                COMMENT_PAYLOAD=\$(cat <<EOF
 {
   "body": "${message.replaceAll('"', '\\"')}"
 }
 EOF
 )
-            curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
-              -X POST "$JIRA_URL/rest/api/3/issue/${JIRA_TICKET}/comment" \
-              -H "Content-Type: application/json" \
-              -d "$COMMENT_PAYLOAD" \
-              -w "\\nHTTP Status: %{http_code}\\n"
-        """
+                curl -s -u "$JIRA_USER:$JIRA_TOKEN" \\
+                  -X POST "${env.JIRA_URL}/rest/api/3/issue/${env.JIRA_TICKET}/comment" \\
+                  -H "Content-Type: application/json" \\
+                  -d "\$COMMENT_PAYLOAD" \\
+                  -w "\\nHTTP Status: %{http_code}\\n"
+            """,
+            returnStatus: true
+        )
     }
 }
+
