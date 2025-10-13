@@ -12,26 +12,13 @@ pipeline {
                     sh '''
                         echo "🔍 Validating JIRA credentials..."
                         curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
-                          -X GET "$JIRA_URL/rest/api/3/project" \
+                          -X GET "$JIRA_URL/rest/api/3/project/10003" \
                           -H "Content-Type: application/json" \
                     '''
                 }
             }
         }
 
-        stage('Attempt Workflow Listing (Valid API)') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'jira_secret', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_TOKEN')]) {
-                    sh '''
-                        echo "📋 Fetching existing workflows..."
-                        curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
-                          -X GET "$JIRA_URL/rest/api/3/workflow/search" \
-                          -H "Accept: application/json" \
-                          -w "\\nHTTP Status: %{http_code}\\n"
-                    '''
-                }
-            }
-        }
     }
 
     post {
