@@ -3,37 +3,33 @@ pipeline {
 
     environment {
         JIRA_URL = "https://ausdevops.atlassian.net"
-        WORKFLOW_JSON = "workflow.json"
     }
 
     stages {
-        stage('Create JIRA Workflow') {
+        stage('Validate JIRA Token') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'jira_secret', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_TOKEN')]) {
-                    script {
-                        // Write workflow JSON to a file safely
-                        writeFile file: WORKFLOW_JSON, text: '''
-{
-  "name": "CI-CD Workflow",
-  "description": "Continuous development pipeline: Dev → Test → Scan → Release → Approval → Deploy",
-  "statuses": [
-    {"name": "To Do"},
-    {"name": "In Progress"},
-    {"name": "Done"}
-  ]
-}
-'''
+                    sh '''
+                        echo "🔍 Validating JIRA credentials..."
+                        curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
+                          -X GET "$JIRA_URL/rest/api/3/myself" \
+                          -H "Content-Type: application/json" \
+                          -w "\\nHTTP Status: %{http_code}\\n"
+                    '''
+                }
+            }
+        }
 
-                        echo "Creating Jira Workflow..."
-                        // Pass variables via environment, not Groovy string interpolation
-                        sh """
-                            curl -s -X POST "${JIRA_URL}/rest/api/3/workflow/create" \
-                              -u "$JIRA_USER:$JIRA_TOKEN" \
-                              -H "Content-Type: application/json" \
-                              --data-binary @${WORKFLOW_JSON} \
-                              -w '\\nHTTP Status: %{http_code}\\n'
-                        """
-                    }
+        stage('Attempt Workflow Listing (Valid API)') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'jira_secret', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_TOKEN')]) {
+                    sh '''
+                        echo "📋 Fetching existing workflows..."
+                        curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
+                          -X GET "$JIRA_URL/rest/api/3/workflow/search" \
+                          -H "Accept: application/json" \
+                          -w "\\nHTTP Status: %{http_code}\\n"
+                    '''
                 }
             }
         }
@@ -41,19 +37,11 @@ pipeline {
 
     post {
         success {
-            echo "✅ JIRA Workflow created successfully on ${env.JIRA_URL}"
+            echo "✅ Jira API connection verified successfully."
         }
         failure {
-            echo "❌ Failed to create JIRA Workflow. Check user permissions and JSON payload."
+            echo "❌ Failed to connect or execute API calls to Jira Cloud."
         }
     }
 }
-A
-A
-A
-A
-B
-A
-A
-A
 
