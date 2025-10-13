@@ -137,7 +137,7 @@ EOF
 
                 # Make the API call
                 curl -s -u "$JIRA_USER:$JIRA_TOKEN" \\
-                  -X PUT "${env.JIRA_URL}/rest/api/3/issue/${env.JIRA_TICKET}/comment/10001" \\
+                  -X PUT "${env.JIRA_URL}/rest/api/3/issue/${env.JIRA_TICKET}/comment/10000" \\
                   -H "Accept: application/json" \\
                   -H "Content-Type: application/json" \\
                   -d "\$COMMENT_PAYLOAD" \\
