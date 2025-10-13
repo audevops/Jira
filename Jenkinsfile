@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        JIRA_URL = 'jira_url' 
+        JIRA_URL = "${params.JIRA_URL}" 
     }
 
     stages {
