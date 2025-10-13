@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        JIRA_URL = "https://ausdevops.atlassian.net"
+        JIRA_URL = 'jira_url' 
     }
 
     stages {
