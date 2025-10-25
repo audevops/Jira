@@ -5,7 +5,7 @@ pipeline {
         string(name: 'JIRA_URL', defaultValue: 'https://ausdevops.atlassian.net', description: 'Enter your Jira Cloud base URL')
         string(name: 'JIRA_TICKET', defaultValue: 'CICD-3', description: 'Enter the Jira issue key (e.g. CICD-123)')
         choice(name: 'ISSUE_TYPE', choices: ['Story', 'Task', 'Epic'], description: 'Select the Jira issue type')
-        choice(name: 'Message_TU', defaultValue: 'Ticket Updated', description: 'Enter the Message to Update on Jira Ticket')
+        string(name: 'Message_TU', defaultValue: 'Ticket Updated', description: 'Enter the Message to Update on Jira Ticket')
     }
 
     environment {
