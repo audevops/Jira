@@ -5,12 +5,14 @@ pipeline {
         string(name: 'JIRA_URL', defaultValue: 'https://ausdevops.atlassian.net', description: 'Enter your Jira Cloud base URL')
         string(name: 'JIRA_TICKET', defaultValue: 'CICD-3', description: 'Enter the Jira issue key (e.g. CICD-123)')
         choice(name: 'ISSUE_TYPE', choices: ['Story', 'Task', 'Epic'], description: 'Select the Jira issue type')
+        choice(name: 'Message_TU', defaultValue: 'Ticket Updated', description: 'Enter the Message to Update on Jira Ticket')
     }
 
     environment {
         JIRA_URL = "${params.JIRA_URL}"
         JIRA_TICKET = "${params.JIRA_TICKET}"
         ISSUE_TYPE = "${params.ISSUE_TYPE}"
+        Message_TU = "${params.Message_TU}"
     }
 
     stages {
@@ -88,8 +90,8 @@ pipeline {
                 echo "📝 Updating Jira ticket with final status..."
                 def status = currentBuild.result ?: 'SUCCESS'
                 def finalMessage = (status == 'SUCCESS') ?
-                    "🎉 All stages completed successfully in Jenkins pipeline for ${ISSUE_TYPE} ${JIRA_TICKET}" :
-                    "⚠️ Jenkins pipeline encountered failures for ${ISSUE_TYPE} ${JIRA_TICKET}. Please review failed stages."
+                    "🎉 All stages completed successfully in Jenkins pipeline for ${ISSUE_TYPE} ${JIRA_TICKET},Comment from User ${Message_TU}", :
+                    "⚠️ Jenkins pipeline encountered failures for ${ISSUE_TYPE} ${JIRA_TICKET}. Please review failed stages,Comment from User ${Message_TU}."
 
                 updateJiraComment(finalMessage)
             }
