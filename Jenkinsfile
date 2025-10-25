@@ -90,7 +90,7 @@ pipeline {
                 echo "📝 Updating Jira ticket with final status..."
                 def status = currentBuild.result ?: 'SUCCESS'
                 def finalMessage = (status == 'SUCCESS') ?
-                    "🎉 All stages completed successfully in Jenkins pipeline for ${ISSUE_TYPE} ${JIRA_TICKET},Comment from User ${Message_TU}", :
+                    "🎉 All stages completed successfully in Jenkins pipeline for ${ISSUE_TYPE} ${JIRA_TICKET},Comment from User ${Message_TU}":
                     "⚠️ Jenkins pipeline encountered failures for ${ISSUE_TYPE} ${JIRA_TICKET}. Please review failed stages,Comment from User ${Message_TU}."
 
                 updateJiraComment(finalMessage)
